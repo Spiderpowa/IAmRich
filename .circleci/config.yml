@@ -32,7 +32,12 @@ jobs:
           name: Running Ganache
           command: ganache-cli
           background: true
-        
+
+      - run:
+          name: Prepare test environment
+          command: |
+            cp secret.js.sample secret.js
+
       # run tests!
       - run: truffle test
       - run: npm run coverage && cat coverage/lcov.info | npm run coveralls
