@@ -10,7 +10,7 @@ contract IAmRich is Ownable {
         uint amount;
     }
 
-    Person richPerson;
+    Person public richPerson;
 
     function proofOfRich(string _name, string _msg) external payable  {
         require(msg.value > richPerson.amount, "You are not rich enough.");
