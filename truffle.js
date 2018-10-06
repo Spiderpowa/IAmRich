@@ -11,6 +11,10 @@
  *     gasPrice: 10000000000,
  *   },
  */
+var HDWalletProvider = require("truffle-hdwallet-provider");
+var secret = require('./secret');
+var mnemonic = secret.mnemonic;
+var infura_apikey = secret.infura_apikey;
 
 module.exports = {
   // See <http://truffleframework.com/docs/advanced/configuration>
@@ -20,6 +24,11 @@ module.exports = {
       host: "127.0.0.1",
       port: 8545,
       network_id: "*" // Match any network id
+    },
+    ropsten: {
+      provider: new HDWalletProvider(mnemonic, 
+        "https://ropsten.infura.io/"+infura_apikey),
+      network_id: 3
     }
   }
 };
