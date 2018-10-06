@@ -8,7 +8,7 @@ var amountIndex = 3;
 contract('IAmRich', async(accounts) => {
     it("should have 1 ether for the richest when deployed", async() => {
         let instance = await IAmRich.deployed();
-        let richPerson = await instance.richPerson.call();
+        let richPerson = await instance.richPerson();
         assert.equal(
             richPerson[amountIndex].valueOf(),
             web3.toWei(1, "ether"),
@@ -19,7 +19,7 @@ contract('IAmRich', async(accounts) => {
         let instance = await IAmRich.deployed();
         await instance.proofOfRich("Jeff", "I'm also rich.",
             {from:accounts[1], value: web3.toWei(2, "ether")});
-        let richPerson = await instance.richPerson.call();
+        let richPerson = await instance.richPerson();
         assert.equal(
             richPerson[addrIndex], accounts[1],
             "richest person's address is not updated.");
@@ -35,10 +35,26 @@ contract('IAmRich', async(accounts) => {
             "richest person's value is not updated to 2 ether.");
     });
 
-    it("should let person knows that he or she is not rich enough.", async() => {
+    it("should let person knows that he or she is not rich enough", async() => {
         let instance = await IAmRich.deployed();
-        await instance.proofOfRich.call("SomeRandomPerson", "I think I am rich.",
+        await instance.proofOfRich("SomeRandomPerson", "I think I am rich.",
             {from:accounts[2], value: web3.toWei(0.5, "ether")}).
             should.be.rejectedWith("You are not rich enough");
     });
+
+    it("should let owner claim ethers", async() => {
+        let instance = await IAmRich.new("NAME", "MSG", {from: accounts[0]});
+        let oldBalance = web3.eth.getBalance(accounts[0]);
+        await instance.proofOfRich("NAME", "MSG",
+            {from:accounts[1], value: web3.toWei(2, "ether")});
+        await instance.proofOfRich("NAME", "MSG",
+            {from:accounts[2], value: web3.toWei(4, "ether")});
+        assert.equal(web3.eth.getBalance(instance.address), web3.toWei(6, "ether"));
+        await instance.claim({from: accounts[0]});
+        let newBalance = web3.eth.getBalance(accounts[0]);
+        assert.ok(newBalance.toNumber() > oldBalance.toNumber(),
+            "balance of owner did not increased.");
+        assert.equal(web3.eth.getBalance(instance.address), 0,
+            "there are remaining balance in the contract.");
+    })
 });
