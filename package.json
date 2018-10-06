@@ -5,6 +5,8 @@
   "author": "Jimmy Hu",
   "license": "MIT",
   "dependencies": {
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
     "openzeppelin-solidity": "^1.12.0"
   }
 }
