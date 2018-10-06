@@ -14,6 +14,7 @@
     "solidity-coverage": "^0.5.11"
   },
   "scripts": {
-    "coverage": "./node_modules/.bin/solidity-coverage"
+    "coverage": "./node_modules/.bin/solidity-coverage",
+    "coveralls": "./node_modules/.bin/coveralls"
   }
 }
