@@ -1,3 +1,6 @@
+const { expectThrow } = require('openzeppelin-solidity/test/helpers/expectThrow');
+const { EVMRevert } = require('openzeppelin-solidity/test/helpers/EVMRevert');
+
 require('chai').use(require('chai-as-promised')).should();
 var IAmRich = artifacts.require("IAmRich");
 var addrIndex = 0;
@@ -43,7 +46,14 @@ contract('IAmRich', async(accounts) => {
               _name: "Jeff",
               _msg: "I'm also rich.",
               _amount: web3.toBigNumber(web3.toWei(2, "ether")) });
+    });
 
+    it("should let person knows that he or she is not rich enough", async() => {
+        let instance = await IAmRich.deployed();
+        await expectThrow(
+            instance.proofOfRich("SomeRandomPerson", "I think I am rich.",
+            {from:accounts[2], value: web3.toWei(1.1, "ether")}),
+            EVMRevert);
     });
 
     it("should let owner claim ethers", async() => {
@@ -63,13 +73,27 @@ contract('IAmRich', async(accounts) => {
             "there are remaining balance in the contract.");
     });
 
+    it("should reject non-owner claims", async() => {
+        let instance = await IAmRich.deployed();
+        await expectThrow(instance.claim({from: accounts[1]}), EVMRevert)
+    });
+
     it("should let owner update amount increase", async() => {
         let instance = await IAmRich.deployed();
+         await expectThrow(instance.updateAmountIncrease(90, {from: accounts[0]}),
+            EVMRevert);
         await instance.updateAmountIncrease(130, {from: accounts[0]})
             .should.not.be.rejected;
         let richPerson = await instance.richPerson();
         let amount = richPerson[amountIndex].valueOf();
         let nextAmount = await instance.nextAmount().valueOf();
         assert.equal(amount*1.3, nextAmount, "next amount calculation is incorrect.")
+    });
+
+
+    it("should reject non-owner update amount increase", async() => {
+        let instance = await IAmRich.deployed();
+        await expectThrow(instance.updateAmountIncrease(130, {from: accounts[1]}),
+            EVMRevert);
     });
 });
