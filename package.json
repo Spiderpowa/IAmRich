@@ -1,0 +1,10 @@
+{
+  "name": "i_am_rich",
+  "version": "0.0.1",
+  "description": "IAmRich Ethereum dApp smart contract.",
+  "author": "Jimmy Hu",
+  "license": "MIT",
+  "dependencies": {
+    "openzeppelin-solidity": "^1.12.0"
+  }
+}
