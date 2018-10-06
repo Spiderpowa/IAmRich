@@ -33,17 +33,21 @@ contract('IAmRich', async(accounts) => {
             richPerson[amountIndex].valueOf(),
             web3.toWei(2, "ether"),
             "richest person's value is not updated to 2 ether.");
+        let nextAmount = await instance.nextAmount().valueOf();
+        assert.equal(web3.toWei(2*1.2, "ether"), nextAmount,
+            "next amount is incorrect.");
     });
 
     it("should let person knows that he or she is not rich enough", async() => {
         let instance = await IAmRich.deployed();
         await instance.proofOfRich("SomeRandomPerson", "I think I am rich.",
-            {from:accounts[2], value: web3.toWei(0.5, "ether")}).
+            {from:accounts[2], value: web3.toWei(1.1, "ether")}).
             should.be.rejectedWith("You are not rich enough");
     });
 
     it("should let owner claim ethers", async() => {
-        let instance = await IAmRich.new("NAME", "MSG", {from: accounts[0]});
+        let instance = await IAmRich.new("NAME", "MSG", 120,
+         {from: accounts[0]});
         let oldBalance = web3.eth.getBalance(accounts[0]);
         await instance.proofOfRich("NAME", "MSG",
             {from:accounts[1], value: web3.toWei(2, "ether")});
@@ -61,5 +65,22 @@ contract('IAmRich', async(accounts) => {
     it("should reject non-owner claims", async() => {
         let instance = await IAmRich.deployed();
         await instance.claim({from: accounts[1]}).should.be.rejected;
+    })
+
+    it("should let owner update amount increase", async() => {
+        let instance = await IAmRich.deployed();
+        await instance.updateAmountIncrease(90, {from: accounts[0]})
+            .should.be.rejectedWith("Amount increase should be more than 100.");
+        await instance.updateAmountIncrease(130, {from: accounts[0]})
+            .should.not.be.rejected;
+        let richPerson = await instance.richPerson();
+        let amount = richPerson[amountIndex].valueOf();
+        let nextAmount = await instance.nextAmount().valueOf();
+        assert.equal(amount*1.3, nextAmount, "next amount calculation is incorrect.")
+    })
+
+    it("should reject non-owner update amount increase", async() => {
+        let instance = await IAmRich.deployed();
+        await instance.updateAmountIncrease(130, {from: accounts[1]}).should.be.rejected;
     })
 });
