@@ -21,7 +21,7 @@ jobs:
           - v1-dependencies-{{ checksum "package-lock.json" }}
 
       - run: npm ci
-      - run: npm install -g truffle ganache-cli
+      - run: sudo npm install -g truffle ganache-cli
 
       - save_cache:
           paths:
