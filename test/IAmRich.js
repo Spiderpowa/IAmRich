@@ -17,7 +17,7 @@ contract('IAmRich', async(accounts) => {
 
     it("should let rich person proves that he or she is rich", async() => {
         let instance = await IAmRich.deployed();
-        await instance.proofOfRich("Jeff", "I'm also rich.",
+        let result = await instance.proofOfRich("Jeff", "I'm also rich.",
             {from:accounts[1], value: web3.toWei(2, "ether")});
         let richPerson = await instance.richPerson();
         assert.equal(
@@ -36,6 +36,14 @@ contract('IAmRich', async(accounts) => {
         let nextAmount = await instance.nextAmount().valueOf();
         assert.equal(web3.toWei(2*1.2, "ether"), nextAmount,
             "next amount is incorrect.");
+        let event = result.logs[0]
+        assert.equal(event.event, "richPersonChanged");
+        assert.deepEqual(event.args,
+            { _addr: accounts[1],
+              _name: "Jeff",
+              _msg: "I'm also rich.",
+              _amount: web3.toBigNumber(web3.toWei(2, "ether")) });
+
     });
 
     it("should let person knows that he or she is not rich enough", async() => {
