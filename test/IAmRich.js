@@ -46,13 +46,6 @@ contract('IAmRich', async(accounts) => {
 
     });
 
-    it("should let person knows that he or she is not rich enough", async() => {
-        let instance = await IAmRich.deployed();
-        await instance.proofOfRich("SomeRandomPerson", "I think I am rich.",
-            {from:accounts[2], value: web3.toWei(1.1, "ether")}).
-            should.be.rejectedWith("You are not rich enough");
-    });
-
     it("should let owner claim ethers", async() => {
         let instance = await IAmRich.new("NAME", "MSG", 120,
          {from: accounts[0]});
@@ -68,27 +61,15 @@ contract('IAmRich', async(accounts) => {
             "balance of owner did not increased.");
         assert.equal(web3.eth.getBalance(instance.address), 0,
             "there are remaining balance in the contract.");
-    })
-
-    it("should reject non-owner claims", async() => {
-        let instance = await IAmRich.deployed();
-        await instance.claim({from: accounts[1]}).should.be.rejected;
-    })
+    });
 
     it("should let owner update amount increase", async() => {
         let instance = await IAmRich.deployed();
-        await instance.updateAmountIncrease(90, {from: accounts[0]})
-            .should.be.rejectedWith("Amount increase should be more than 100.");
         await instance.updateAmountIncrease(130, {from: accounts[0]})
             .should.not.be.rejected;
         let richPerson = await instance.richPerson();
         let amount = richPerson[amountIndex].valueOf();
         let nextAmount = await instance.nextAmount().valueOf();
         assert.equal(amount*1.3, nextAmount, "next amount calculation is incorrect.")
-    })
-
-    it("should reject non-owner update amount increase", async() => {
-        let instance = await IAmRich.deployed();
-        await instance.updateAmountIncrease(130, {from: accounts[1]}).should.be.rejected;
-    })
+    });
 });
