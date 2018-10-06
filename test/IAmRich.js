@@ -57,4 +57,9 @@ contract('IAmRich', async(accounts) => {
         assert.equal(web3.eth.getBalance(instance.address), 0,
             "there are remaining balance in the contract.");
     })
+
+    it("should reject non-owner claims", async() => {
+        let instance = await IAmRich.deployed();
+        await instance.claim({from: accounts[1]}).should.be.rejected;
+    })
 });
